@@ -7,7 +7,7 @@ rm(list = ls())
 #install.packages("devtools")
 
 # install package
-# devtools::install_github("JMacDonaldPhD/REpi", ref = "main")
+#devtools::install_github("JMacDonaldPhD/REpi", ref = "main")
 
 # ==== Using REpi (Particle Filter Example) ====
 
@@ -18,7 +18,7 @@ set.seed(1)
 # ==== Construct Epidemic Model ====
 M <- 5 # No. meta-populations
 N_M <- rep(1e3, M) # Population size in each meta-population
-endTime <- 1 # An end time for simulation of the epidemic
+endTime <- 5 # An end time for simulation of the epidemic
 
 
 # Discrete-Time (Chain-Binomial) Epidemic model which returns 
@@ -83,7 +83,7 @@ particleFilter(K = 10, theta, alpha)
 
 # Looks at the distribution of the Particle Filter Estimate
 PF_sample <- replicate(1000, particleFilter(K = 10, theta, alpha))
-plot(density(PF_sample), main=paste0("var(log estimate) = ", var(PF_sample), collapse = ""))
+plot(density(PF_sample), main=paste0("var(log estimate) = ", var(PF_sample[!is.infinite(PF_sample)]), collapse = ""))
 
 # Adapt_BS_PF chooses K particles such that var of the log-likelihood
 # estimate is below 1. (Only adapts by increasing K, so may end up 
