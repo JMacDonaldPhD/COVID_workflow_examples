@@ -1,3 +1,7 @@
 .Rproj.user
-*.Rproj
+
+# Ignore REpi R project file
+REpi.Rproj
+
+# Ignore Any plots saved
 *.jpeg
