@@ -23,12 +23,10 @@ given corresponding to beta_G, beta_L and
 gamma in that order (see \code{dailyProg}).}
 }
 \value{
-A \code{sim} function to simulate from the generated model,
-given a set of parameters. A \code{llh} function to calculate
-the log-density for an epidemic, given a set of parameters.
-Calculate the log-likelihood of an SIR epidemic which
-is assumed to take place in a metapopulation structure
-occurs, given a parameter set.
+Returns three functions. A \code{sim} function to simulate from the generated model,
+given a set of parameters. A \code{dailyProg} function, whose behaviour is identical
+to \code{sim} but simulates for one time unit only. Finally, a \code{llh} function to calculate
+he log-density for an epidemic, given a set of parameters.
 
 \preformatted{    Returns log-likelihood value corresponding to
             the given epidemic and parameter set.
@@ -38,4 +36,26 @@ occurs, given a parameter set.
 Returns functions to simulate or calculate the log-density of a
 discrete-time SIR Process with a metapopulation structure,
 given a parameter set.
+}
+\examples{
+M <- 5
+N_M <- rep(1e4, 5)
+epiModel <- metaSIR(N_M, endTime)        
+
+# Simulate Epidemic
+I0 <- 50
+X0 <- matrix(nrow = M, ncol = 3)
+X0[1, ] <- c(N_M[1] - I0, I0, 0)
+for(i in 2:M){
+    X0[i, ] <- c(N_M[i], 0, 0)
+}
+theta <- c(0.05, 1, 0.25)
+X <- epiModel$sim(list(X0, theta))        
+
+# Calculate Log-density
+epiModel$llh(X, theta)       
+        
+Calculate the log-likelihood of an SIR epidemic which
+is assumed to take place in a metapopulation structure
+occurs, given a parameter set.
 }

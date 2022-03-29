@@ -73,14 +73,8 @@ y <- y[,1:endTime, drop = F]
 # days of interest
 epiModel <- metaSIR(N_M, endTime = endTime)
 
-# Convert Initial Infectives into the complete Initial State
-X_0 <- matrix(nrow = M, ncol = 3)
-X_0[,1] <- N_M - I0
-X_0[,2] <- I0
-X_0[,3] <- rep(0, M)
-
 # Example of how to construct a bootstrap particle filter
-particleFilter <- BS_PF(y, X_0, obsFrame = caseAscObsModel, epiModel = epiModel)
+particleFilter <- BS_PF(y, X0, obsFrame = caseAscObsModel, epiModel = epiModel)
 
 # Returns Log-likelihood
 particleFilter(K = 10, theta, alpha)
@@ -104,7 +98,7 @@ logPrior <- function(param){
 lambda0 <- 1e-4
 V0 <- diag(1, length(theta))
 adapt_step <- adapt_particleMCMC(init = theta, epiModel = epiModel, obsFrame = caseAscObsModel,
-                                 y, X0 = X_0, alpha, logPrior, lambda0, V0, K = K, noIts = 1e4)
+                                 y, X0 = X0, alpha, logPrior, lambda0, V0, K = K, noIts = 1e4)
 # Checks whether proposal scale parameter has stabilised (similar thing can be done with covariance parameters
 # but they are not stored as of yet)
 par(mfrow = c(1,1))
@@ -112,7 +106,7 @@ plot(adapt_step$lambda_vec, type = 'l')
 
 # Run MCMC with adapted proposal parameters
 MCMC_sample <- particleMCMC(init = theta, epiModel = epiModel, obsFrame = caseAscObsModel,
-                            y, X0 = X_0, alpha, logPrior, lambda = adapt_step$lambda,
+                            y, X0 = X0, alpha, logPrior, lambda = adapt_step$lambda,
                             V = adapt_step$V, K = K, noIts = 1e4)
 
 

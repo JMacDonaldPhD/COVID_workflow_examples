@@ -1,3 +1,13 @@
+# Utilities
+
+#' Transform Uniform Random Variable into a Binomial Random Variable
+
+unif_to_binom <- function(U, trials, prob){
+  bool <- U < pbinom(0:trials, size = trials, prob = prob)
+  return(min(which(bool) - 1))
+}
+
+
 #' A function which adjusts average likelihood calculation to 
 #' avoid numerical error which leads to false zeroes
 #' THIS METHOD DOES NOT WORK IN SOME SITUATIONS
@@ -27,6 +37,6 @@ log_mean_exp <- function(a){
   N <- length(a)
   
   logsumexp <- log_sum_exp(a)
-
+  
   return(logsumexp - log(N))
 }
