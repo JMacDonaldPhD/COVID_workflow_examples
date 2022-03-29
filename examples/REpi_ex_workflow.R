@@ -26,18 +26,23 @@ endTime <- 5 # An end time for simulation of the epidemic
 # This simulates over 30 days so most of the epidemic is observed.
 # The endTime given above will refer to the amount of timepoints
 # which will be observed. This will become clear later.
-epiModel <- metaSIR_simple(N_M, endTime = 30)
+epiModel <- metaSIR(N_M, endTime = 30)
 
 # Epidemic Parameters
 theta <- c(0.05, 1, 0.25) # Global Infection, Local Infection, Removal respectively
-I0 <- c(50, rep(0, M - 1)) # Initial number of infectives in each population
+I0 <- 50 # Initial number of infectives in each population
+X0 <- matrix(nrow = M, ncol = 3)
+X0[1, ] <- c(N_M[1] - I0, I0, 0)
+for(i in 2:M){
+    X0[i, ] <- c(N_M[i], 0, 0)
+}
 
 # Simulate a realisation of the epidemic 
-X_sim <- epiModel$sim(param = list(I0, theta))
+X_sim <- epiModel$sim(param = list(X0, theta))
 
 # Calculate the log-density of simulated Epidemic
 epiModel$llh(X_sim, theta)
-
+# -2587.295
 
 # ==== Construct Observation Model ====
 
@@ -45,7 +50,7 @@ epiModel$llh(X_sim, theta)
 # Observation model which takes an underlying epidemic as its argument,
 # returns sampling and log-likelihood calculation functions.
 # This might change to look more like R's 'r', 'd' etc. convention.
-obsModel <- caseAscObsModel_simple(X_sim)
+obsModel <- caseAscObsModel(X_sim)
 
 
 # = Sampling and Log-likelihood calculation =
@@ -66,7 +71,7 @@ y <- y[,1:endTime, drop = F]
 
 # Reconstruct epidemic model so simulate only the
 # days of interest
-epiModel <- metaSIR_simple(N_M, endTime = endTime)
+epiModel <- metaSIR(N_M, endTime = endTime)
 
 # Convert Initial Infectives into the complete Initial State
 X_0 <- matrix(nrow = M, ncol = 3)
@@ -75,7 +80,7 @@ X_0[,2] <- I0
 X_0[,3] <- rep(0, M)
 
 # Example of how to construct a bootstrap particle filter
-particleFilter <- BS_PF(y, X_0, obsFrame = caseAscObsModel_simple, epiModel = epiModel)
+particleFilter <- BS_PF(y, X_0, obsFrame = caseAscObsModel, epiModel = epiModel)
 
 # Returns Log-likelihood
 particleFilter(K = 10, theta, alpha)
@@ -98,7 +103,7 @@ logPrior <- function(param){
 # Adapt the MCMC proposal parameters
 lambda0 <- 1e-4
 V0 <- diag(1, length(theta))
-adapt_step <- adapt_particleMCMC(init = theta, epiModel = epiModel, obsFrame = caseAscObsModel_simple,
+adapt_step <- adapt_particleMCMC(init = theta, epiModel = epiModel, obsFrame = caseAscObsModel,
                                  y, X0 = X_0, alpha, logPrior, lambda0, V0, K = K, noIts = 1e4)
 # Checks whether proposal scale parameter has stabilised (similar thing can be done with covariance parameters
 # but they are not stored as of yet)
@@ -106,7 +111,7 @@ par(mfrow = c(1,1))
 plot(adapt_step$lambda_vec, type = 'l')
 
 # Run MCMC with adapted proposal parameters
-MCMC_sample <- particleMCMC(init = theta, epiModel = epiModel, obsFrame = caseAscObsModel_simple,
+MCMC_sample <- particleMCMC(init = theta, epiModel = epiModel, obsFrame = caseAscObsModel,
                             y, X0 = X_0, alpha, logPrior, lambda = adapt_step$lambda,
                             V = adapt_step$V, K = K, noIts = 1e4)
 
