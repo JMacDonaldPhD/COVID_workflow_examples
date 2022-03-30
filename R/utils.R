@@ -1,19 +1,12 @@
 # Utilities
-
-#' Transform Uniform Random Variable into a Binomial Random Variable
-
+# Transform Uniform Random Variable into a Binomial Random Variable
 unif_to_binom <- function(U, trials, prob){
   bool <- U < pbinom(0:trials, size = trials, prob = prob)
   return(min(which(bool) - 1))
 }
 
 
-#' A function which adjusts average likelihood calculation to 
-#' avoid numerical error which leads to false zeroes
-#' THIS METHOD DOES NOT WORK IN SOME SITUATIONS
-#' May make a adjustments such that exp(a_i + b) -> Inf
-#' @param a vector of log-likelihood values.
-#' @return The log(likelihood-estimate)
+# Calculating product of probabilities in a more stable way
 log_sum_exp <- function(a){
   N <- length(a)
   if(sum(is.infinite(a)) == N){

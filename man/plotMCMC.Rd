@@ -2,10 +2,22 @@
 % Please edit documentation in R/plotMCMC.R
 \name{plotMCMC}
 \alias{plotMCMC}
-\title{Plot MCMC}
+\title{Plot MCMC Samples and Diagnostics}
 \usage{
 plotMCMC(draws, theta, expressions)
 }
+\arguments{
+\item{draws}{Matrix of MCMC samples}
+
+\item{theta}{True values of parameters, if epidemic data is simulated.}
+
+\item{expressions}{expression objects which represent mathematical notation
+for each parameter.}
+}
+\value{
+None
+}
 \description{
-Plot MCMC
+Takes MCMC samples and plots traceplots, ACFs and density
+graphs for each parameter.
 }

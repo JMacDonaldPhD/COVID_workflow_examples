@@ -7,13 +7,29 @@
 metaSIR(N_M, endTime)
 }
 \arguments{
-\item{N_M}{The size of each metapopulation. The length of this
-vector will determine how many metapopulations there
+\item{N_M}{The size of each meta-population. The length of this
+vector will determine how many meta-populations there
 are.}
 
 \item{endTime}{At what time does simulation of the epidemic
 stop. By default, endTime is infinite meaning
 the epidemic is simulated until it dies out.}
+
+\item{X_t}{A vector of length three holding information about
+the total number of individuals in each epidemic
+state across all metapopulations.}
+
+\item{beta_G}{Global infection parameter. The rate at which an
+infective from one metapopulation infects a
+susceptible in another metapopulation}
+
+\item{beta_L}{Local infection parameter. The rate at which an
+infective from one metapopulation infects a
+susceptible from the same metapopulation.}
+
+\item{gamma}{Removal rate parameter. The rate at which one
+moves from the infective state to the removal
+state.}
 
 \item{epidemic}{An epidemic realisation which is in the format
 returned by \code{sim}.}
@@ -28,14 +44,25 @@ given a set of parameters. A \code{dailyProg} function, whose behaviour is ident
 to \code{sim} but simulates for one time unit only. Finally, a \code{llh} function to calculate
 he log-density for an epidemic, given a set of parameters.
 
+Returns the propagate StateX and Mstate along
+with the number of infections and removals
+which occured in each metapopulation (Infections, Removals)
+Calculate the log-likelihood of an SIR epidemic which
+is assumed to take place in a metapopulation structure
+occurs, given a parameter set.
+
 \preformatted{    Returns log-likelihood value corresponding to
             the given epidemic and parameter set.
 }
 }
 \description{
 Returns functions to simulate or calculate the log-density of a
-discrete-time SIR Process with a metapopulation structure,
+discrete-time SIR Process with a meta-population structure,
 given a parameter set.
+
+Progresses the epidemic one day forward and returns the state after
+the progression along with how many of each event happened in each
+metapopulation.
 }
 \examples{
 M <- 5
@@ -53,9 +80,6 @@ theta <- c(0.05, 1, 0.25)
 X <- epiModel$sim(list(X0, theta))        
 
 # Calculate Log-density
-epiModel$llh(X, theta)       
-        
-Calculate the log-likelihood of an SIR epidemic which
-is assumed to take place in a metapopulation structure
-occurs, given a parameter set.
+epiModel$llh(X, theta)
+
 }

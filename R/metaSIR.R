@@ -3,11 +3,11 @@
 #'
 #' @description 
 #' Returns functions to simulate or calculate the log-density of a
-#' discrete-time SIR Process with a metapopulation structure, 
+#' discrete-time SIR Process with a meta-population structure, 
 #' given a parameter set.
 #'
-#' @param N_M The size of each metapopulation. The length of this
-#'            vector will determine how many metapopulations there
+#' @param N_M The size of each meta-population. The length of this
+#'            vector will determine how many meta-populations there
 #'            are.
 #' 
 #' @param endTime   At what time does simulation of the epidemic
@@ -35,7 +35,9 @@
 #' X <- epiModel$sim(list(X0, theta))        
 #' 
 #' # Calculate Log-density
-#' epiModel$llh(X, theta)       
+#' epiModel$llh(X, theta)
+#' 
+#' @export       
 #'         
 metaSIR <- function(N_M, endTime){
 
@@ -59,30 +61,27 @@ metaSIR <- function(N_M, endTime){
   # Total Populaiton Size
   N <- sum(N_M)
 
-
-  # Progresses the epidemic one day forward and returns the state after
-  # the progression along with how many of each event happened in each
-  # metapopulation.
-  # @param StateX A vector of length three holding information about
-  #               the total number of individuals in each epidemic
-  #               state across all metapopulations.
-  # @param Mstate A matrix of dimension Mx4, where M is the number of
-  #               metapopulations. Each row holds information about
-  #               the number of individuals in each epidemic state in
-  #               a single metapopulation.
-  # @param beta_G Global infection parameter. The rate at which an
-  #               infective from one metapopulation infects a
-  #               susceptible in another metapopulation
-  # @param beta_L Local infection parameter. The rate at which an
-  #               infective from one metapopulation infects a
-  #               susceptible from the same metapopulation.
-  # @param gamma  Removal rate parameter. The rate at which one
-  #               moves from the infective state to the removal
-  #               state.
-  # @return       Returns the propagate StateX and Mstate along
-  #               with the number of infections and removals
-  #               which occured in each metapopulation
-  #               (Infections, Removals)
+  #' @title One-day Epidemic Simulator
+  #' @description 
+  #' Progresses the epidemic one day forward and returns the state after
+  #' the progression along with how many of each event happened in each
+  #' metapopulation.
+  #' @param X_t   A vector of length three holding information about
+  #'              the total number of individuals in each epidemic
+  #'              state across all metapopulations.
+  #' @param beta_G Global infection parameter. The rate at which an
+  #'               infective from one metapopulation infects a
+  #'               susceptible in another metapopulation
+  #' @param beta_L Local infection parameter. The rate at which an
+  #'               infective from one metapopulation infects a
+  #'               susceptible from the same metapopulation.
+  #' @param gamma  Removal rate parameter. The rate at which one
+  #'               moves from the infective state to the removal
+  #'               state.
+  #' @return       
+  #' Returns the propagate StateX and Mstate along
+  #' with the number of infections and removals
+  #' which occured in each metapopulation (Infections, Removals)
   dailyProg <- function(X_t, beta_G, beta_L, gamma){
     # Calculates the number of infected individuals exerting pressure on each susceptible individual
     X <- array(dim = c(M, 3, 2))

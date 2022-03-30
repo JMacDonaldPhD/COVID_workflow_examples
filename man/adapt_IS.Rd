@@ -2,10 +2,25 @@
 % Please edit documentation in R/adapt_IS.R
 \name{adapt_IS}
 \alias{adapt_IS}
-\title{Adapt Monte Carlo Estimate}
+\title{Importance Sampler Adaptation}
 \usage{
-adapt_IS(N0, IS_estimator, param, no_samples = 10000, func)
+adapt_IS(N0, IS_estimator, param, no_samples = 10000)
+}
+\arguments{
+\item{N0}{Initial number of particles.}
+
+\item{IS_estimator}{A function which carries out Importance sampling.}
+
+\item{param}{A list of epidemic and observational parameters to be passed
+on to \code{IS_estimator}}
+
+\item{no_samples}{Number of IS estimates calculated to estimate the variance
+of the IS estimator.}
+}
+\value{
+Returns number of particles which gives adequate variance of the log-estimate.
 }
 \description{
-Adapt Monte Carlo Estimate
+Adapts the number of particles used in a given Importance
+sampler to give adequate performance.
 }

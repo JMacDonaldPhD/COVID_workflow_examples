@@ -1,18 +1,16 @@
-#' Testing regime observational model for a discrete-time meta-population model.
+#' @name testingObsModel
+#' @title Case Ascertainment observational model for a discrete-time meta-population SIR model.
+#' @description 
+#' Generates a testing observation model. There is assumed
+#' to be a fixed probability \alpha of an individual being recruited for testing, independent
+#' of time and individual. There is then an associated sensitivity and specificity for the test.
 #'
-#'
-#'
-#' @param spec Specificity of the test. The probability of a negative test negative
-#'             test given disease is not present (True Negative Rate)
-#' @param sens Sensitivity of the test. The probabililty of a positive test given
-#'             disease is present (True Positive Rate)
-#' @return Returns a sampling function and a density calculation function.
+#' @param epidemic Underlying epidemic trajectory
+#' @return 
+#' Returns a sampling function and a log-density calculation function.
+#' @export 
 testingObsModel <- function(epidemic){
   
-  #' Sampling function for testing regime.
-  #'@param epidemic The output of the discrete-time, meta-population epidemic model
-  #'@param alpha The daily probability that an individual is tested.
-  #'@return Returns a testing sample from the given epidemic
   sample <- function(alpha, sens, spec){
     noDays <- nrow(epidemic$state$S)
     noMetapops <- ncol(epidemic$state$S)
@@ -64,15 +62,6 @@ testingObsModel <- function(epidemic){
     return(sample)
   }
   
-  #' @param sample A sample generated from the testing regimes sample function
-  #' @param epidemic A realisation from the SIR meta-population epidemic model
-  #' @param n_D The number tests which were done diseased individuals. If NULL
-  #'            this will be simulated. n_D cannot be part of the sample as if
-  #'            the disease status of the tested population is known, there would
-  #'            be no reason to test them. Hence this is a quantity that is not 
-  #'            part of the epidemic process or the testing regime sample.
-  #' @param alpha The probability that an individual is recruited for testing
-  #'              on any given day, regardless of disease status.
   llh <- function(sample, alpha, sens, spec){
     
     noDays <- nrow(epidemic$state$S)

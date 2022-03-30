@@ -2,10 +2,22 @@
 % Please edit documentation in R/Bootstrap_PF.R
 \name{BS_PF}
 \alias{BS_PF}
-\title{Bootstrap Particle Filter for Metapopulation}
+\title{Bootstrap Particle Filter}
 \usage{
 BS_PF(y, X_0, obsFrame, epiModel)
 }
+\arguments{
+\item{y}{Observed epidemic data}
+
+\item{X_0}{Initial epidemic state, which is assumed to be known.}
+
+\item{obsFrame}{Generator function for observational model.}
+
+\item{epiModel}{epidemic model}
+}
+\value{
+Returns log-likelihood estimate.
+}
 \description{
-Bootstrap Particle Filter for Metapopulation
+Generates a bootstrap particle filter.
 }

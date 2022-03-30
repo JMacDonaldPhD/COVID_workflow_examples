@@ -1,6 +1,15 @@
-#' Bootstrap Particle Filter for Metapopulation
-
-
+#' @name BS_PF
+#' @title Bootstrap Particle Filter
+#' @description 
+#' Generates a bootstrap particle filter.
+#' @param y Observed epidemic data
+#' @param X_0 Initial epidemic state, which is assumed to be known.
+#' @param obsFrame Generator function for observational model.
+#' @param epiModel epidemic model
+#' @return 
+#' Returns log-likelihood estimate.
+#' 
+#' @export
 BS_PF <- function(y, X_0, obsFrame, epiModel){
   
   X_t <- X_0

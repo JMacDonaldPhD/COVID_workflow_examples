@@ -2,78 +2,23 @@
 % Please edit documentation in R/metaSIR_NC.R
 \name{metaSIR_NC}
 \alias{metaSIR_NC}
-\title{Progresses the epidemic one day forward and returns the state after
-the progression along with how many of each event happened in each
-metapopulation.}
+\title{Generate a non-centered discrete-time epidemic model}
 \usage{
 metaSIR_NC(N_M, startTime, endTime, PRINT = F)
 }
 \arguments{
-\item{StateX}{A vector of length three holding information about
-the total number of individuals in each epidemic
-state across all metapopulations.}
+\item{N_M}{Size of each meta-population.}
 
-\item{Mstate}{A matrix of dimension Mx4, where M is the number of
-metapopulations. Each row holds information about
-the number of individuals in each epidemic state in
-a single metapopulation.}
-
-\item{beta_G}{Global infection parameter. The rate at which an
-infective from one metapopulation infects a
-susceptible in another metapopulation}
-
-\item{beta_L}{Local infection parameter. The rate at which an
-infective from one metapopulation infects a
-susceptible from the same metapopulation.}
-
-\item{gamma}{Removal rate parameter. The rate at which one
-moves from the infective state to the removal
-state.}
-
-\item{I0}{The number of infectives in each metapopulation
-at startTime (see \code{metaSIR}). Length should
-match the number of metapopulations set at
-model generation.}
-
-\item{epidemic}{An epidemic realisation which is in the format
-returned by \code{sim}.}
-
-\item{theta}{Epidemic parameters. Three parameters need to be
-given corresponding to beta_G, beta_L and
-gamma in that order (see \code{dailyProg}).}
+\item{endTime}{The time which the epidemic should be simulated for.}
 }
 \value{
-\preformatted{  Returns the propogate StateX and Mstate along
-          with the number of infections and removals 
-          which occured in each metapopulation
-          (Infections, Removals)
-}
-
-Simulate an SIR epidemic within a metapopulation structure,
-given initial number of infectives in each metapopulation
-and the epidemic parameters.
-
-\preformatted{ Returns three objects. epidemic is a list
-         object with information about the epidemic
-         state at every simulated timepoint. daily_inf
-         is a TxM matrix (M is number of metapopulations,
-         T is the number of timepoints simulated). Each 
-         row gives information about the number of infections
-         in each metapopulation at a given timepoint.
-         daily_rem gives the same information but about
-         removals.
-}
-
-Calculate the log-likelihood of an SIR epidemic which
-is assumed to take place in a metapopulation structure
-occurs, given a parameter set.
-
-\preformatted{    Returns log-likelihood value corresponding to 
-            the given epidemic and parameter set.
-}
+Returns three functions. A \code{sim} function to simulate from the generated model,
+given a set of parameters. A \code{dailyProg} function, whose behaviour is identical
+to \code{sim} but simulates for one time unit only. Finally, a \code{llh} function to calculate
+he log-density for an epidemic, given a set of parameters.
 }
 \description{
-Progresses the epidemic one day forward and returns the state after
-the progression along with how many of each event happened in each
-metapopulation.
+Generates a discrete-time epidemic model which constructs epidemics
+using a stream of random variables which are independent to the
+epidemic parameters and state.
 }

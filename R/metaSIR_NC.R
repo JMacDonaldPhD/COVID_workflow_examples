@@ -1,6 +1,19 @@
 
-
-
+#' @name metaSIR_NC
+#' @title Generate a non-centered discrete-time epidemic model
+#' @description 
+#' Generates a discrete-time epidemic model which constructs epidemics
+#' using a stream of random variables which are independent to the 
+#' epidemic parameters and state.
+#' @param N_M Size of each meta-population.
+#' @param endTime The time which the epidemic should be simulated for.
+#' 
+#' @return 
+#' Returns three functions. A `sim` function to simulate from the generated model,
+#' given a set of parameters. A `dailyProg` function, whose behaviour is identical
+#' to `sim` but simulates for one time unit only. Finally, a `llh` function to calculate
+#' he log-density for an epidemic, given a set of parameters.
+#' @export
 metaSIR_NC <- function(N_M, startTime, endTime, PRINT = F){
   if(sum(N_M <= 0) > 0){
     stop("Invalid population levels given (population must be > 0)")
@@ -28,29 +41,6 @@ metaSIR_NC <- function(N_M, startTime, endTime, PRINT = F){
   
   dim_U_i <- M*nrow(stoch)
   dim_U <- c(nrow(stoch)*(endTime - startTime), M)
-  #' Progresses the epidemic one day forward and returns the state after
-  #' the progression along with how many of each event happened in each
-  #' metapopulation.
-  #' @param StateX A vector of length three holding information about
-  #'               the total number of individuals in each epidemic 
-  #'               state across all metapopulations.
-  #' @param Mstate A matrix of dimension Mx4, where M is the number of 
-  #'               metapopulations. Each row holds information about 
-  #'               the number of individuals in each epidemic state in 
-  #'               a single metapopulation.
-  #' @param beta_G Global infection parameter. The rate at which an
-  #'               infective from one metapopulation infects a 
-  #'               susceptible in another metapopulation
-  #' @param beta_L Local infection parameter. The rate at which an
-  #'               infective from one metapopulation infects a
-  #'               susceptible from the same metapopulation.
-  #' @param gamma  Removal rate parameter. The rate at which one
-  #'               moves from the infective state to the removal
-  #'               state.
-  #' @return       Returns the propogate StateX and Mstate along
-  #'               with the number of infections and removals 
-  #'               which occured in each metapopulation
-  #'               (Infections, Removals)
   dailyProg <- function(StateX, Mstate, beta_G, beta_L, gamma, U_i){
     # Calculates the number of infected individuals exerting pressure on each susceptible individual
     mat <- matrix(NA, ncol = M, nrow = M - 1)
@@ -96,27 +86,6 @@ metaSIR_NC <- function(N_M, startTime, endTime, PRINT = F){
   dailyProg <- compiler::cmpfun(dailyProg)
   #debug(sim)
   
-  #' Simulate an SIR epidemic within a metapopulation structure,
-  #' given initial number of infectives in each metapopulation
-  #' and the epidemic parameters.
-  #' @param I0    The number of infectives in each metapopulation
-  #'              at startTime (see `metaSIR`). Length should 
-  #'              match the number of metapopulations set at 
-  #'              model generation.
-  #' @param theta The epidemic parameters which are used in 
-  #'              `dailyProg` to draw the number of infections
-  #'              and removals. Three parameters need to be 
-  #'              given corresponding to beta_G, beta_L and 
-  #'              gamma in that order (see `dailyProg`).
-  #' @return      Returns three objects. epidemic is a list
-  #'              object with information about the epidemic
-  #'              state at every simulated timepoint. daily_inf
-  #'              is a TxM matrix (M is number of metapopulations,
-  #'              T is the number of timepoints simulated). Each 
-  #'              row gives information about the number of infections
-  #'              in each metapopulation at a given timepoint.
-  #'              daily_rem gives the same information but about
-  #'              removals.
   sim <- function(param){
     I0 <- param[[1]]
     theta <- param[[2]]
@@ -203,19 +172,7 @@ metaSIR_NC <- function(N_M, startTime, endTime, PRINT = F){
     return(list(state = epidemic, daily_inf = Infections,
                 daily_rem = Removals))
   }
-  
-  
-  
-  #' Calculate the log-likelihood of an SIR epidemic which
-  #' is assumed to take place in a metapopulation structure
-  #' occurs, given a parameter set.
-  #' @param epidemic An epidemic realisation which is in the format
-  #'                 returned by `sim`.
-  #' @param theta    Epidemic parameters. Three parameters need to be 
-  #'                 given corresponding to beta_G, beta_L and 
-  #'                 gamma in that order (see `dailyProg`).
-  #' @return         Returns log-likelihood value corresponding to 
-  #'                 the given epidemic and parameter set.
+
   llh <- function(epidemic, theta){
     # Daily llh
     

@@ -87,7 +87,7 @@ plot(density(PF_sample), main=paste0("var(log estimate) = ", var(PF_sample[!is.i
 # Adapt_BS_PF chooses K particles such that var of the log-likelihood
 # estimate is below 1. (Only adapts by increasing K, so may end up 
 # with slightly too many particles)
-K <- Adapt_BS_PF(K0 = 10, particleFilter, theta, alpha)
+K <- adapt_BS_PF(K0 = 10, particleFilter, theta, alpha)
 
 # Define prior for epidemic parameters
 logPrior <- function(param){

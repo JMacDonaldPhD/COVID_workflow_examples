@@ -2,36 +2,18 @@
 % Please edit documentation in R/testing.R
 \name{testingObsModel}
 \alias{testingObsModel}
-\title{Testing regime observational model for a discrete-time meta-population model.}
+\title{Case Ascertainment observational model for a discrete-time meta-population SIR model.}
 \usage{
 testingObsModel(epidemic)
 }
 \arguments{
-\item{epidemic}{A realisation from the SIR meta-population epidemic model}
-
-\item{spec}{Specificity of the test. The probability of a negative test negative
-test given disease is not present (True Negative Rate)}
-
-\item{sens}{Sensitivity of the test. The probabililty of a positive test given
-disease is present (True Positive Rate)}
-
-\item{sample}{A sample generated from the testing regimes sample function}
-
-\item{n_D}{The number tests which were done diseased individuals. If NULL
-this will be simulated. n_D cannot be part of the sample as if
-the disease status of the tested population is known, there would
-be no reason to test them. Hence this is a quantity that is not
-part of the epidemic process or the testing regime sample.}
-
-\item{alpha}{The probability that an individual is recruited for testing
-on any given day, regardless of disease status.}
+\item{epidemic}{Underlying epidemic trajectory}
 }
 \value{
-Returns a sampling function and a density calculation function.
-Sampling function for testing regime.
-
-Returns a testing sample from the given epidemic
+Returns a sampling function and a log-density calculation function.
 }
 \description{
-Testing regime observational model for a discrete-time meta-population model.
+Generates a testing observation model. There is assumed
+to be a fixed probability \alpha of an individual being recruited for testing, independent
+of time and individual. There is then an associated sensitivity and specificity for the test.
 }
