@@ -12,7 +12,7 @@ rm(list = ls())
 # ==== Using REpi (Particle Filter Example) ====
 
 library(REpi)
-# Random Seed for reproducibility
+# Random Seed for reproducibility (this will generate the dataset 'sim_sample' given in the package)
 set.seed(1)
 
 # ==== Construct Epidemic Model ====
@@ -51,7 +51,6 @@ epiModel$llh(X_sim, theta)
 # returns sampling and log-likelihood calculation functions.
 # This might change to look more like R's 'r', 'd' etc. convention.
 obsModel <- caseAscObsModel(X_sim)
-
 
 # = Sampling and Log-likelihood calculation =
 alpha <- 0.1 # The probability that an infection is detected on any given day.
