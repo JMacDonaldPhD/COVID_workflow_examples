@@ -97,7 +97,7 @@ logPrior <- function(param){
 lambda0 <- 1e-4
 V0 <- diag(1, length(theta))
 adapt_step <- adapt_particleMCMC(init = theta, epiModel = epiModel, obsFrame = caseAscObsModel,
-                                 y, X0 = X0, alpha, logPrior, lambda0, V0, K = K, noIts = 1e4)
+                                 y, X0 = X0, alpha, logPrior, lambda0, V0, K = K, noIts = 1e3)
 # Checks whether proposal scale parameter has stabilised (similar thing can be done with covariance parameters
 # but they are not stored as of yet)
 par(mfrow = c(1,1))
@@ -106,7 +106,7 @@ plot(adapt_step$lambda_vec, type = 'l')
 # Run MCMC with adapted proposal parameters
 MCMC_sample <- particleMCMC(init = theta, epiModel = epiModel, obsFrame = caseAscObsModel,
                             y, X0 = X0, alpha, logPrior, lambda = adapt_step$lambda,
-                            V = adapt_step$V, K = K, noIts = 1e4)
+                            V = adapt_step$V, K = K, noIts = 1e3)
 
 
 # Save a plot of epidemic output
