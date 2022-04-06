@@ -2,7 +2,7 @@ Package: REpi
 Title: Pseudo-Marginal Analysis of partially observed Epidemics
 Version: 0.0.0.9000
 Authors@R: 
-    person("Josh", "MacDonald", , "j.macdonald2@elancaster.ac.uk", role = c("aut", "cre"))
+    person("Josh", "MacDonald", , "j.macdonald2@lancaster.ac.uk", role = c("aut", "cre"))
 Description: A package for producing epidemic process and epidemic observation frameworks which can
 	simulate realisations and calculate log likelihoods. Analysis of epidemic data can carried 
 	out through various Pseudo-Marginal Methods, including Particle MCMC. This package is still
