@@ -64,16 +64,16 @@ adapt_particleMCMC <- function(init, epiModel, obsFrame, y, X0, alpha, logPrior,
         accept <- accept + 1
         
         if(adapt){
-          lambda <- lambda + 0.90*(lambda/sqrt(i))
+          lambda <- lambda + 9*(0.01*lambda0/sqrt(i))
         }
       } else{
         if(adapt){
-          lambda <- lambda - 0.10*(lambda/sqrt(i))
+          lambda <- lambda - (0.01*lambda0/sqrt(i))
         }
       }
     } else{
       if(adapt){
-        lambda <- lambda - 0.10*(lambda/sqrt(i))
+        lambda <- lambda - (0.01*lambda0/sqrt(i))
       }
     }
     draws[i, ] <- c(curr, logLikeCurr)
