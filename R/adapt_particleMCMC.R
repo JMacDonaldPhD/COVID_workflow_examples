@@ -47,9 +47,9 @@ adapt_particleMCMC <- function(init, epiModel, obsFrame, y, X0, alpha, logPrior,
     
     if(adapt){
       V <- var(draws[1:(i-1), 1:k])
-      prop <- abs(curr + mvtnorm::rmvnorm(1, mean = rep(0, k), sigma = lambda*V))
+      prop <- abs(curr + mvtnorm::rmvnorm(1, mean = rep(0, k), sigma = (lambda^2)*V))
     } else{
-      prop <- abs(curr + mvtnorm::rmvnorm(1, mean = rep(0, k), sigma = lambda0*V0))
+      prop <- abs(curr + mvtnorm::rmvnorm(1, mean = rep(0, k), sigma = (lambda0^2)*V0))
     }
     
     # Estimate Likelihood
@@ -64,16 +64,16 @@ adapt_particleMCMC <- function(init, epiModel, obsFrame, y, X0, alpha, logPrior,
         accept <- accept + 1
         
         if(adapt){
-          lambda <- lambda + 9*(0.01*lambda0/sqrt(i))
+          lambda <- lambda + 9*(0.01*lambda0/(i)^(1/3))
         }
       } else{
         if(adapt){
-          lambda <- lambda - (0.01*lambda0/sqrt(i))
+          lambda <- lambda - 1*(0.01*lambda0/(i)^(1/3))
         }
       }
     } else{
       if(adapt){
-        lambda <- lambda - (0.01*lambda0/sqrt(i))
+        lambda <- lambda - 1*(0.01*lambda0/(i)^(1/3))
       }
     }
     draws[i, ] <- c(curr, logLikeCurr)

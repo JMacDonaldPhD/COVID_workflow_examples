@@ -36,7 +36,7 @@ particleMCMC <- function(init, epiModel, obsFrame, y, X0, alpha, logPrior, lambd
   draws <- matrix(ncol = k + 1, nrow = noIts)
   for(i in 1:noIts){
     # Propose new parameters
-    prop <- abs(curr + mvtnorm::rmvnorm(1, mean = rep(0, k), sigma = lambda*V))
+    prop <- abs(curr + mvtnorm::rmvnorm(1, mean = rep(0, k), sigma = (lambda^2)*V))
     
     # Estimate Likelihood
     logLikeProp <- particleFilter(K, prop, alpha)

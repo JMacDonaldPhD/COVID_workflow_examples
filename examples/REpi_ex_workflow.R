@@ -11,12 +11,12 @@ rm(list = ls())
 
 # ==== Using REpi (Particle Filter Example) ====
 
-library(REpi)
+#library(REpi)
 # Random Seed for reproducibility (this will generate the dataset 'sim_sample' given in the package)
 set.seed(1)
 
 # ==== Construct Epidemic Model ====
-M <- 5 # No. meta-populations
+M <- 2 # No. meta-populations
 N_M <- rep(1e3, M) # Population size in each meta-population
 endTime <- 5 # An end time for simulation of the epidemic
 
@@ -80,7 +80,7 @@ particleFilter(K = 10, theta, alpha)
 
 
 # Looks at the distribution of the Particle Filter Estimate
-PF_sample <- replicate(1000, particleFilter(K = 10, theta, alpha))
+PF_sample <- replicate(1000, particleFilter(K = 5, theta, alpha))
 plot(density(PF_sample), main=paste0("var(log estimate) = ", var(PF_sample[!is.infinite(PF_sample)]), collapse = ""))
 
 # Adapt_BS_PF chooses K particles such that var of the log-likelihood
@@ -94,21 +94,21 @@ logPrior <- function(param){
 }
 
 # Adapt the MCMC proposal parameters
-lambda0 <- 1e-4
+# Outputs plots checking whether proposal scale parameter has stabilised (similar thing can be done 
+# with covariance parameters but they are not stored as of yet)
+lambda0 <- 2.38/sqrt(3)
 V0 <- diag(1, length(theta))
 adapt_step <- adapt_particleMCMC(init = theta, epiModel = epiModel, obsFrame = caseAscObsModel,
-                                 y, X0 = X0, alpha, logPrior, lambda0, V0, K = K, noIts = 1e3)
-# Checks whether proposal scale parameter has stabilised (similar thing can be done with covariance parameters
-# but they are not stored as of yet)
-par(mfrow = c(1,1))
-plot(adapt_step$lambda_vec, type = 'l')
+                                 y, X0 = X0, alpha, logPrior, lambda0, V0, K = K, noIts = 3e4)
+
+
 
 # Run MCMC with adapted proposal parameters
 MCMC_sample <- particleMCMC(init = theta, epiModel = epiModel, obsFrame = caseAscObsModel,
                             y, X0 = X0, alpha, logPrior, lambda = adapt_step$lambda,
-                            V = adapt_step$V, K = K, noIts = 1e3)
+                            V = adapt_step$V, K = K, noIts = 3e4)
 
-
+MCMC_sample$acceptRate
 # Save a plot of epidemic output
 jpeg(filename = "testParticleMCMC.jpeg", width = 480*3, height = 480*3)
 plotMCMC(MCMC_sample$draws[,1:3], theta, expressions = c(expression(beta[G]), expression(beta[L]),
