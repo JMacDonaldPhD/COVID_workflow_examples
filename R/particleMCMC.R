@@ -52,5 +52,6 @@ particleMCMC <- function(init, epiModel, obsFrame, y, X0, alpha, logPrior, lambd
     }
     draws[i, ] <- c(curr, logLikeCurr)
   }
-  return(list(draws = draws, acceptRate = accept/noIts))
+  return(list(draws = draws, acceptRate = accept/noIts,
+              curr = curr))
 } 

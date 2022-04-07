@@ -82,5 +82,6 @@ adapt_particleMCMC <- function(init, epiModel, obsFrame, y, X0, alpha, logPrior,
   }
   par(mfrow = c(1,1))
   plot(lambda_vec, type = 'l')
-  return(list(lambda = lambda, lambda_vec = lambda_vec, V = var(draws[,1:k])))
+  return(list(lambda = lambda, lambda_vec = lambda_vec, V = var(draws[,1:k]),
+              curr = curr))
 }
