@@ -30,7 +30,7 @@ BS_PF <- function(y, X_0, obsFrame, epiModel){
     return(particle)
   }
   
-  log_weight <- function(particle, t){
+  log_weight <- function(particle, t, alpha){
     obsModel <- obsFrame(particle[,,t:(t+1)])
     logw_star <- obsModel$llh(y[,t], alpha)
     return(logw_star)
@@ -53,7 +53,7 @@ BS_PF <- function(y, X_0, obsFrame, epiModel){
       # }
       
       particles <- lapply(particles, FUN = propogate, t = t, theta = theta, alpha = alpha)
-      logw_star <- sapply(particles, FUN = log_weight, t = t)
+      logw_star <- sapply(particles, FUN = log_weight, t = t, alpha = alpha)
       
       
       # Normalise weights
