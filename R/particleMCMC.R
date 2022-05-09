@@ -23,23 +23,28 @@
 #' 
 #' @export
 particleMCMC <- function(init, epiModel, obsFrame, y, X0, alpha, logPrior, lambda, V, K, noIts){
+  start <- as.numeric(Sys.time())
   # Set up functions
   particleFilter <- BS_PF(y, X0, obsFrame, epiModel)
   k <- length(init)
   # Estimate Likelihood for initial parameters
   logLikeCurr <- -Inf
   while(is.infinite(logLikeCurr)){
-    logLikeCurr <- particleFilter(K, init, alpha)
+    PF_curr <- particleFilter(K, init, alpha)
+    logLikeCurr <- PF_curr$logLikeEst
   }
   curr <- init
   accept <- 0
   draws <- matrix(ncol = k + 1, nrow = noIts)
+  
+  ESS_store <- matrix(nrow = noIts, ncol = length(PF_curr$ESS))
   for(i in 1:noIts){
     # Propose new parameters
     prop <- abs(curr + mvtnorm::rmvnorm(1, mean = rep(0, k), sigma = (lambda^2)*V))
     
     # Estimate Likelihood
-    logLikeProp <- particleFilter(K, prop, alpha)
+    PF_prop <- particleFilter(K, prop, alpha)
+    logLikeProp <- PF_prop$logLikeEst
 
     if(!is.infinite(logLikeProp)){
       logAccProb <- (logLikeProp + logPrior(prop)) - (logLikeCurr + logPrior(curr)) 
@@ -47,11 +52,13 @@ particleMCMC <- function(init, epiModel, obsFrame, y, X0, alpha, logPrior, lambd
       if(log(runif(1, 0, 1)) < logAccProb){
         curr <- prop
         logLikeCurr <- logLikeProp 
+        PF_curr <- PF_prop
         accept <- accept + 1
       }
     }
+    ESS_store[i, ] <- PF_curr$ESS
     draws[i, ] <- c(curr, logLikeCurr)
   }
   return(list(draws = draws, acceptRate = accept/noIts,
-              curr = curr))
+              curr = curr, ESS_store = ESS_store, time = as.numeric(Sys.time()) - start))
 } 

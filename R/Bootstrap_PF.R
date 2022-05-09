@@ -72,7 +72,7 @@ BS_PF <- function(y, X_0, obsFrame, epiModel){
       #   print(theta)
       # }
       
-      #ESS[i] <- 1/sum((w^2))
+      ESS[t] <- 1/sum((w^2))
       
       if(t != noDays){
         # Resample (IF K IS LARGE MAYBE QUICKER TO USE `cumsum()` AND `runif()` INSTEAD)
@@ -81,7 +81,7 @@ BS_PF <- function(y, X_0, obsFrame, epiModel){
       }
     }
     #return(list(logLikeEst = logLikeEst, ESS = ESS, particles = particles))
-    return(logLikeEst)
+    return(list(logLikeEst = logLikeEst, ESS = ESS))
   }
   
   return(particleFilter)

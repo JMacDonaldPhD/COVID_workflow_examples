@@ -34,7 +34,7 @@ adapt_particleMCMC <- function(init, epiModel, obsFrame, y, X0, alpha, logPrior,
   # Estimate Likelihood for initial parameters
   logLikeCurr <- -Inf
   while(is.infinite(logLikeCurr)){
-    logLikeCurr <- particleFilter(K, init, alpha)
+    logLikeCurr <- particleFilter(K, init, alpha)$logLikeEst
   }
   curr <- init
   accept <- 0
@@ -53,7 +53,7 @@ adapt_particleMCMC <- function(init, epiModel, obsFrame, y, X0, alpha, logPrior,
     }
     
     # Estimate Likelihood
-    logLikeProp <- particleFilter(K, prop, alpha)
+    logLikeProp <- particleFilter(K, prop, alpha)$logLikeEst
 
     if(!is.infinite(logLikeProp)){
       logAccProb <- (logLikeProp + logPrior(prop)) - (logLikeCurr + logPrior(curr)) 

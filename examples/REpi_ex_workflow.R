@@ -80,7 +80,7 @@ particleFilter(K = 10, theta, alpha)
 
 
 # Looks at the distribution of the Particle Filter Estimate
-PF_sample <- replicate(1000, particleFilter(K = 5, theta, alpha))
+PF_sample <- replicate(1000, particleFilter(K = 5, theta, alpha)$logLikeEst)
 plot(density(PF_sample), main=paste0("var(log estimate) = ", var(PF_sample[!is.infinite(PF_sample)]), collapse = ""))
 
 # Adapt_BS_PF chooses K particles such that var of the log-likelihood
@@ -109,6 +109,7 @@ MCMC_sample <- particleMCMC(init = theta, epiModel = epiModel, obsFrame = caseAs
                             V = adapt_step$V, K = K, noIts = 3e4)
 
 MCMC_sample$acceptRate
+
 # Save a plot of epidemic output
 jpeg(filename = "testParticleMCMC.jpeg", width = 480*3, height = 480*3)
 plotMCMC(MCMC_sample$draws[,1:3], theta, expressions = c(expression(beta[G]), expression(beta[L]),
