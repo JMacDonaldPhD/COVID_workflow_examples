@@ -48,7 +48,8 @@ metaSIR <- function(N_M, endTime){
   # S -> I -> R
   stoch <- matrix(c(-1, 1, 0,
                     0, -1, 1), nrow = 2, ncol = 3, byrow = T)
-
+  mat <- matrix(1, nrow = M, ncol = M)
+  diag(mat) <- 0
   # projects epidemic one day using binomial draws
   # Either takes P0 as an argument for the intial number of presymptomatic individuals
   # OR StateX if simulating from a timepoint which is mid-epidemic.
@@ -60,6 +61,7 @@ metaSIR <- function(N_M, endTime){
   M <- length(N_M)
   # Total Populaiton Size
   N <- sum(N_M)
+
 
   #' @title One-day Epidemic Simulator
   #' @description 
@@ -86,26 +88,36 @@ metaSIR <- function(N_M, endTime){
     # Calculates the number of infected individuals exerting pressure on each susceptible individual
     X <- array(dim = c(M, 3, 2))
     X[,,1] <- X_t
-    mat <- matrix(NA, ncol = M, nrow = M - 1)
-    for(i in 1:M){
-      mat[,i] <- X_t[-i,2]
-    }
-    globalInfPressure <- beta_G*colSums(mat)/N
+    
+    # TO DO: MxM and zero out diag (use `diag()`)
+    # mat <- matrix(NA, ncol = M, nrow = M - 1)
+    # for(i in 1:M){
+    #  mat[,i] <- X_t[-i,2]
+    # }
+    # globalInfPressure <- beta_G*colSums(mat)/N
+
+    globalInfPressure <- (beta_G*(mat%*%X_t[,2])/N)[1:M]
 
     localInfPressure <- beta_L*X_t[, 2]/N_M
 
     infProb <- 1 - exp(-(globalInfPressure + localInfPressure))
 
+    probs <- c(infProb, rep(1 - exp(-gamma), M))
     # S -> I
-    noInf <- rbinom(M, size = X_t[, 1], prob = infProb)
+    #noInf <- rbinom(M, size = X_t[, 1], prob = infProb)
 
     # I -> R
-    noRem <- rbinom(M, size = X_t[, 2], prob = 1 - exp(-gamma))
-
+    #noRem <- rbinom(M, size = X_t[, 2], prob = 1 - exp(-gamma))
+    
+    events <- matrix(rbinom(2*M, size = X_t[1:(2*M)], prob = probs),nrow = M, ncol = 2, byrow = F)
+    
     # Update Household States
-    X_t <- X_t +
-      noInf*matrix(stoch[1, ], nrow = M, ncol = 3, byrow = T) +
-      noRem*matrix(stoch[2, ], nrow = M, ncol = 3, byrow = T)
+    #X_t <- X_t +
+    #  noInf*matrix(stoch[1, ], nrow = M, ncol = 3, byrow = T) +
+    #  noRem*matrix(stoch[2, ], nrow = M, ncol = 3, byrow = T)
+    
+    X_t <- X_t + events%*%stoch
+    
     X[,,2] <- X_t
     return(X)
   }
@@ -186,45 +198,60 @@ metaSIR <- function(N_M, endTime){
   #' Calculate the log-likelihood of an SIR epidemic which
   #' is assumed to take place in a metapopulation structure
   #' occurs, given a parameter set.
-  #' @param epidemic An epidemic realisation which is in the format
-  #'                 returned by `sim`.
+  #' @param X A 3-dimensional array whose 2 matrix slices are the state of the 
+  #'          epidemic at time t and the state at time t + 1 respectively.
   #' @param theta    Epidemic parameters. Three parameters need to be
   #'                 given corresponding to beta_G, beta_L and
   #'                 gamma in that order (see `dailyProg`).
   #' @return         Returns log-likelihood value corresponding to
   #'                 the given epidemic and parameter set.
-  llh <- function(X_sample, theta){
+  llh <- function(X, theta){
     # Daily llh
-
-    ## Daily llh per metapopulation
-    one_day_one_metaPop <- function(i, n){
-
-      # Relevant data
-      X_1 <- X_sample[, , n]
-      X_2 <- X_sample[, , n + 1]
-
-      # Infections and Removals
-      inf <- X_1[i, 1] - X_2[i, 1]
-      rem <- X_2[i, 3] - X_1[i, 3]
-
-      # Probability of infections
-      beta_i <- (theta[1] * sum(X_1[-i, 2]/N_M[-i])) + (theta[2] * X_1[i, 2])/N
-      p_inf <- 1 - exp(-beta_i)
-      d_inf <- dbinom(inf, X_1[i, 1], prob = p_inf, log = T)
-
-      # Probability of removals
-      p_rem <- 1 - exp(-theta[3])
-      d_rem <- dbinom(rem, X_1[i, 2], prob = p_rem, log = T)
-
-      return(d_inf + d_rem)
-    }
-
-    M_ind <- 1:M
-    day_ind <- 1:(dim(X_sample)[3] - 1)
-    M_day_grid <- expand.grid(M_ind, day_ind)
-    #debug(one_day_one_metaPop)
-    llh <- sum(apply(X = M_day_grid, MARGIN = 1, FUN = function(X) one_day_one_metaPop(X[1], X[2])))
+    beta_G <- theta[1]
+    beta_L <- theta[2]
+    gamma <- theta[3]
+    globalInfPressure <- (beta_G*(mat%*%X[, 2, 1])/N)[1:M]
+    
+    localInfPressure <- beta_L*X[, 2, 1]/N_M
+    
+    infProb <- 1 - exp(-(globalInfPressure + localInfPressure))
+    
+    probs <- c(infProb, rep(1 - exp(-theta[3]), M))
+    
+    events <- (X[, c(1, 3), 1] - X[, c(1, 3), 2])*matrix(c(1, -1), nrow = M, ncol = 2, byrow = T)
+    
+    llh <- sum(dbinom(events, X[,c(1,2), 1], prob = probs, log = T))
     return(llh)
+    
+    # ## Daily llh per metapopulation
+    # one_day_one_metaPop <- function(i, n){
+    # 
+    #   # Relevant data
+    #   X_1 <- X_sample[, , n]
+    #   X_2 <- X_sample[, , n + 1]
+    # 
+    #   # Infections and Removals
+    #   inf <- X_1[i, 1] - X_2[i, 1]
+    #   rem <- X_2[i, 3] - X_1[i, 3]
+    # 
+    #   # Probability of infections
+    #   beta_i <- (theta[1] * sum(X_1[-i, 2]/N_M[-i])) + (theta[2] * X_1[i, 2])/N
+    #   p_inf <- 1 - exp(-beta_i)
+    #   d_inf <- dbinom(inf, X_1[i, 1], prob = p_inf, log = T)
+    # 
+    #   # Probability of removals
+    #   p_rem <- 1 - exp(-theta[3])
+    #   d_rem <- dbinom(rem, X_1[i, 2], prob = p_rem, log = T)
+    # 
+    #   return(d_inf + d_rem)
+    # }
+    # 
+    # M_ind <- 1:M
+    # day_ind <- 1:(dim(X_sample)[3] - 1)
+    # M_day_grid <- expand.grid(M_ind, day_ind)
+    # #debug(one_day_one_metaPop)
+    # llh <- sum(apply(X = M_day_grid, MARGIN = 1, FUN = function(X) one_day_one_metaPop(X[1], X[2])))
+    # return(llh)
   }
 
   return(list(sim = sim, llh = llh, param_dim = list(type = "list", dims = c(M, 3)),

@@ -33,3 +33,42 @@ log_mean_exp <- function(a){
   
   return(logsumexp - log(N))
 }
+
+# ===== Truncated Binomial Draws ====
+
+rbinom_trunc <- function(n = 1, a, size, prob){
+  return(truncdist::rtrunc(n, spec = "binom", a = a, size = size, prob = prob))
+}
+
+rbinom_trunc <- Vectorize(rbinom_trunc, vectorize.args = c("a", "size", "prob"))
+
+dbinom_trunc <- function(x, a, size, prob, log = T){
+  if(log){
+    return(log(truncdist::dtrunc(x, spec = "binom", a = a, size = size, prob = prob)))
+  } else{
+    return(truncdist::dtrunc(x, spec = "binom", a = a, size = size, prob = prob))
+  }
+}
+
+dbinom_trunc <- Vectorize(dbinom_trunc, vectorize.args = c("x", "a", "size", "prob"))
+
+
+# Convert 2 strings into the distribution and function desired
+string2dist <- function(fun = "d", dist = NULL){
+  
+  if(!is.null(dist)){
+    if(dist == "AC"){
+      dist <- "AscCase"
+    } else{
+      stop("Provide a valid distribution")
+    }
+  } else{
+    dist <- "AscCase"
+  }
+  return(eval(parse(text = paste0(c(fun, dist), collapse = ""))))
+}
+
+
+
+
+

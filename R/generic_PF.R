@@ -1,7 +1,7 @@
-#' @name BS_PF
-#' @title Bootstrap Particle Filter
+#' @name generic_PF
+#' @title Generic Particle Filter
 #' @description 
-#' Generates a bootstrap particle filter.
+#' Generates a particle filter which propogates particals using a given proposal scheme q.
 #' @param y Observed epidemic data
 #' @param X_0 Initial epidemic state, which is assumed to be known.
 #' @param obsFrame Generator function for observational model.
@@ -10,17 +10,21 @@
 #' Returns log-likelihood estimate.
 #' 
 #' @export
-BS_PF <- function(y, X_0, obsFrame, epiModel){
+generic_PF <- function(y, X_0, obsFrame, epiModel, proposalFrame){
+  
+  N <- rowSums(X_0)
+  M <- ncol(X_0)
+  q <- proposalFrame(y, N, M)
   
   X_t <- X_0
   noDays <- ncol(y)
-  #particle_placeholder <- array(X_0, dim = c(nrow(X_0), ncol(X_0), noDays + 1))
+  particle_placeholder <- array(X_0, dim = c(nrow(X_0), ncol(X_0), noDays + 1))
   #particles <- rep(list(array(X_0, dim = c(nrow(X_0),ncol(X_0), noDays + 1))), K)
   logLikeEst <- 0
   ESS <- c()
   
-  propogate <- function(particle, t, theta){
-    X <- epiModel$dailyProg(particle[,,t], theta[1], theta[2], theta[3])
+  propogate <- function(particle, t, theta, alpha){
+    X <- q$sim(particle[,,t], theta[1], theta[2], theta[3], t)
     
     # # Calculate weights of simulation
     # obsModel <- obsFrame(X)
@@ -31,16 +35,11 @@ BS_PF <- function(y, X_0, obsFrame, epiModel){
   }
   
   log_weight <- function(particle, t, alpha){
+    
+    propDens <- q$llh(particle[,,t:(t+1)], t, theta)
     obsModel <- obsFrame(particle[,,t:(t+1)])
-    logw_star <- obsModel$llh(y[,t], alpha)
+    logw_star <- obsModel$llh(y[,t], alpha)*epiModel$llh(particle[,,t:(t+1)], theta)/propDens
     return(logw_star)
-  }
-  
-  
-  prop_and_weight <- function(particle, t, theta, alpha){
-    particle <- propogate(particle, t, theta)
-    logw <- log_weight(particle, t, alpha)
-    return(list(particle = particle, logw = logw))
   }
   
   particleFilter <- function(K, theta, alpha){
@@ -59,24 +58,20 @@ BS_PF <- function(y, X_0, obsFrame, epiModel){
       #   
       # }
       
-      # PERFORMANCE GAINS?
-      particles <- lapply(particles, FUN = propogate, t = t, theta = theta)
+      particles <- lapply(particles, FUN = propogate, t = t, theta = theta, alpha = alpha)
       logw_star <- sapply(particles, FUN = log_weight, t = t, alpha = alpha)
-      #prop_and_weight <- lapply(particles, FUN = prop_and_weight, t = t, theta = theta, alpha = alpha)
       
-      #particles 
       
       # Normalise weights
-      if(all(is.infinite(logw_star))){
-        return(list(logLikeEst = -Inf, ESS = c(ESS, 0)))
+      if(sum(!is.infinite(logw_star)) == 0){
+        logLikeEst <- -Inf
+        break
       }
-      #logw_star_min <- min(logw_star[!is.infinite(logw_star)])
-      logw_star_max <- max(logw_star)
-      
-      logw_star <- logw_star - logw_star_max
+      logw_star_min <- min(logw_star[!is.infinite(logw_star)])
+      logw_star <- logw_star - logw_star_min
       w_star <- exp(logw_star)
       
-      logLikeEst <- logLikeEst + (log(mean(w_star)) + logw_star_max)
+      logLikeEst <- logLikeEst + (log(mean(w_star)) + logw_star_min)
       
       w <- w_star/sum(w_star)
       # if(sum(is.na(w)) > 0){
@@ -96,8 +91,5 @@ BS_PF <- function(y, X_0, obsFrame, epiModel){
   }
   
   return(particleFilter)
-
+  
 }
-
-
-

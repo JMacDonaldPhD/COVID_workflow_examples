@@ -1,5 +1,7 @@
-#' @name BS_PF
-#' @title Bootstrap Particle Filter
+#' Bootstrap Particle Filter using vectorised simulator
+
+#' @name VBS_PF
+#' @title Bootstrap Particle Filter using vectorised simulator
 #' @description 
 #' Generates a bootstrap particle filter.
 #' @param y Observed epidemic data
@@ -10,41 +12,27 @@
 #' Returns log-likelihood estimate.
 #' 
 #' @export
-BS_PF <- function(y, X_0, obsFrame, epiModel){
+VBS_PF <- function(y, X_0, epiModel, obs = "AC"){
   
+  dObs <- string2dist("d", obs)
   X_t <- X_0
   noDays <- ncol(y)
   #particle_placeholder <- array(X_0, dim = c(nrow(X_0), ncol(X_0), noDays + 1))
-  #particles <- rep(list(array(X_0, dim = c(nrow(X_0),ncol(X_0), noDays + 1))), K)
   logLikeEst <- 0
   ESS <- c()
   
-  propogate <- function(particle, t, theta){
-    X <- epiModel$dailyProg(particle[,,t], theta[1], theta[2], theta[3])
-    
-    # # Calculate weights of simulation
-    # obsModel <- obsFrame(X)
-    # logw_star <- obsModel$llh(y[,t], alpha)
-    # 
-    particle[,,t + 1] <- X[,,2]
-    return(particle)
-  }
-  
   log_weight <- function(particle, t, alpha){
-    obsModel <- obsFrame(particle[,,t:(t+1)])
-    logw_star <- obsModel$llh(y[,t], alpha)
+    #obsModel <- obsFrame(particle[,,t:(t+1)])
+    logw_star <- dObs(y[,t], alpha, particle[,,t:(t+1)])
     return(logw_star)
   }
   
-  
-  prop_and_weight <- function(particle, t, theta, alpha){
-    particle <- propogate(particle, t, theta)
-    logw <- log_weight(particle, t, alpha)
-    return(list(particle = particle, logw = logw))
-  }
-  
   particleFilter <- function(K, theta, alpha){
-    particles <- rep(list(array(X_0, dim = c(nrow(X_0),ncol(X_0), noDays + 1))), K)
+    #particles <- rep(list(array(X_0, dim = c(nrow(X_0),ncol(X_0), noDays + 1))), K)
+    #particles <- array(dim = c(dim(X_t), K, noDays + 1))
+    particles <- array(dim = c(dim(X_t), noDays + 1, K))
+    
+    particles[,,1,] <- X_t
     for(t in 1:noDays){
       logw_star <- c()
       # for(k in 1:K){
@@ -60,9 +48,10 @@ BS_PF <- function(y, X_0, obsFrame, epiModel){
       # }
       
       # PERFORMANCE GAINS?
-      particles <- lapply(particles, FUN = propogate, t = t, theta = theta)
-      logw_star <- sapply(particles, FUN = log_weight, t = t, alpha = alpha)
-      #prop_and_weight <- lapply(particles, FUN = prop_and_weight, t = t, theta = theta, alpha = alpha)
+      particles[,,t + 1,] <- epiModel$sim(particles[,,t,], theta)
+
+      logw_star <- dAscCase(y[,t], alpha, particles[,,t:(t+1),])
+      #logw_star <- dAscCase(y[,t], alpha, particles[,,,t:(t+1)])
       
       #particles 
       
@@ -88,7 +77,8 @@ BS_PF <- function(y, X_0, obsFrame, epiModel){
       if(t != noDays){
         # Resample (IF K IS LARGE MAYBE QUICKER TO USE `cumsum()` AND `runif()` INSTEAD)
         resample_ind <- sample(1:K, size = K, replace = T, prob = w)
-        particles <- particles[resample_ind]
+        #particles <- particles[,,resample_ind,]
+        particles <- particles[,,,resample_ind]
       }
     }
     #return(list(logLikeEst = logLikeEst, ESS = ESS, particles = particles))
@@ -96,8 +86,5 @@ BS_PF <- function(y, X_0, obsFrame, epiModel){
   }
   
   return(particleFilter)
-
+  
 }
-
-
-
