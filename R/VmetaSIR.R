@@ -1,5 +1,5 @@
 
-
+#' @export
 VmetaSIR <- function(N_M, endTime, K){
   N <- sum(N_M)
   M <- length(N_M)
