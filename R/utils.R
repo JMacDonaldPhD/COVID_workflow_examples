@@ -68,7 +68,15 @@ string2dist <- function(fun = "d", dist = NULL){
   return(eval(parse(text = paste0(c(fun, dist), collapse = ""))))
 }
 
-
+# Change objects within VmetaSIR function factory
+amend_K <- function(K, VepiModel){
+  epi_env <- rlang::fn_env(VepiModel$sim)
+  
+  if(epi_env$K != K){
+   epi_env$K <- K
+   epi_env$stoch <- Matrix::bdiag(rep(list(epi_env$stoch_base), K))
+  }
+}
 
 
 

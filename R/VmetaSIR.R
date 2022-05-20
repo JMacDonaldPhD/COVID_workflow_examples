@@ -1,10 +1,10 @@
 
 #' @export
-VmetaSIR <- function(N_M, endTime, K){
+VmetaSIR <- function(N_M, K){
   N <- sum(N_M)
   M <- length(N_M)
-  stoch <- matrix(c(-1, 1, 0, 0, -1, 1), nrow = 2, ncol = 3, byrow = T)
-  stoch <- Matrix::bdiag(rep(list(stoch), K))
+  stoch_base <- matrix(c(-1, 1, 0, 0, -1, 1), nrow = 2, ncol = 3, byrow = T)
+  stoch <- Matrix::bdiag(rep(list(stoch_base), K))
   
   mat <- matrix(1, nrow = M, ncol = M)
   diag(mat) <- 0

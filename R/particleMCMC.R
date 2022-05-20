@@ -25,8 +25,8 @@
 particleMCMC <- function(init, epiModel, obsFrame, y, X0, alpha, logPrior, lambda, V, K, noIts){
   start <- as.numeric(Sys.time())
   # Set up functions
-  particleFilter <- BS_PF(y, X0, obsFrame, epiModel)
-  k <- length(init)
+  particleFilter <- VBS_PF(y, X0, obs = obsFrame, epiModel = epiModel)
+  
   # Estimate Likelihood for initial parameters
   logLikeCurr <- -Inf
   while(is.infinite(logLikeCurr)){
@@ -35,6 +35,7 @@ particleMCMC <- function(init, epiModel, obsFrame, y, X0, alpha, logPrior, lambd
   }
   curr <- init
   accept <- 0
+  k <- length(init)
   draws <- matrix(ncol = k + 1, nrow = noIts)
   
   ESS_store <- matrix(nrow = noIts, ncol = length(PF_curr$ESS))

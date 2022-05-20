@@ -31,8 +31,8 @@ susceptible from the same metapopulation.}
 moves from the infective state to the removal
 state.}
 
-\item{epidemic}{An epidemic realisation which is in the format
-returned by \code{sim}.}
+\item{X}{A 3-dimensional array whose 2 matrix slices are the state of the
+epidemic at time t and the state at time t + 1 respectively.}
 
 \item{theta}{Epidemic parameters. Three parameters need to be
 given corresponding to beta_G, beta_L and

@@ -16,6 +16,7 @@ adapt_BS_PF <- function(K0 = 10, particleFilter,theta, alpha){
   K <- K0
   varLogEst <- Inf
   while(varLogEst > 1){
+    #print(K)
     varLogEst <- var(replicate(1000, particleFilter(K, theta, alpha)$logLikeEst))
     if(is.na(varLogEst)){
       varLogEst <- Inf
@@ -28,6 +29,6 @@ adapt_BS_PF <- function(K0 = 10, particleFilter,theta, alpha){
       }
     }
     
-    print(c(K, varLogEst))
+    #print(c(K, varLogEst))
   }
 }

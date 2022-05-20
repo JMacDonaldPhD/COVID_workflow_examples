@@ -2,7 +2,7 @@
 #' @title Case Ascertainment observational model for a discrete-time meta-population SIR model.
 #' @description 
 #' Generates a case ascertainment observation model. There is assumed
-#' to be a fixed probability \alpha of observing an infection, independent
+#' to be a fixed probability alpha of observing an infection, independent
 #' of time and individual.
 #'
 #' @param X Underlying epidemic trajectory

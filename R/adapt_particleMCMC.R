@@ -28,8 +28,8 @@ adapt_particleMCMC <- function(init, epiModel, obsFrame, y, X0, alpha, logPrior,
                                delta = 0.05, K, noIts){
   
   # Set up functions
-  particleFilter <- BS_PF(y, X0, obsFrame, epiModel)
-  k <- length(init)
+  particleFilter <- VBS_PF(y, X0, obs = obsFrame, epiModel = epiModel)
+
   lambda <- lambda0
   # Estimate Likelihood for initial parameters
   logLikeCurr <- -Inf
@@ -39,6 +39,7 @@ adapt_particleMCMC <- function(init, epiModel, obsFrame, y, X0, alpha, logPrior,
   curr <- init
   accept <- 0
   lambda_vec <- lambda
+  k <- length(init)
   draws <- matrix(ncol = k + 1, nrow = noIts)
   for(i in 1:noIts){
     

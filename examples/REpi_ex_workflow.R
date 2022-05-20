@@ -70,11 +70,11 @@ y <- y[,1:endTime, drop = F]
 
 # Reconstruct epidemic model so simulate only the
 # days of interest
-epiModel <- metaSIR(N_M, endTime = endTime)
-
+#epiModel <- metaSIR(N_M, endTime = endTime)
+epiModel <- VmetaSIR(N_M, K = 1)
 # Example of how to construct a bootstrap particle filter
-particleFilter <- BS_PF(y, X0, obsFrame = caseAscObsModel, epiModel = epiModel)
-
+#particleFilter <- BS_PF(y, X0, obsFrame = caseAscObsModel, epiModel = epiModel)
+particleFilter <- VBS_PF(y, X0, obs = "AC", epiModel = epiModel)
 # Returns Log-likelihood
 particleFilter(K = 10, theta, alpha)
 
@@ -98,13 +98,20 @@ logPrior <- function(param){
 # with covariance parameters but they are not stored as of yet)
 lambda0 <- 2.38/sqrt(3)
 V0 <- diag(1, length(theta))
-adapt_step <- adapt_particleMCMC(init = theta, epiModel = epiModel, obsFrame = caseAscObsModel,
+# adapt_step <- adapt_particleMCMC(init = theta, epiModel = epiModel, obsFrame = caseAscObsModel,
+#                                  y, X0 = X0, alpha, logPrior, lambda0, V0, K = K, noIts = 3e4)
+
+adapt_step <- adapt_particleMCMC(init = theta, epiModel = epiModel, obsFrame = "AC",
                                  y, X0 = X0, alpha, logPrior, lambda0, V0, K = K, noIts = 3e4)
 
 
 
 # Run MCMC with adapted proposal parameters
-MCMC_sample <- particleMCMC(init = theta, epiModel = epiModel, obsFrame = caseAscObsModel,
+# MCMC_sample <- particleMCMC(init = theta, epiModel = epiModel, obsFrame = caseAscObsModel,
+#                             y, X0 = X0, alpha, logPrior, lambda = adapt_step$lambda,
+#                             V = adapt_step$V, K = K, noIts = 3e4)
+
+MCMC_sample <- particleMCMC(init = theta, epiModel = epiModel, obsFrame = "AC",
                             y, X0 = X0, alpha, logPrior, lambda = adapt_step$lambda,
                             V = adapt_step$V, K = K, noIts = 3e4)
 

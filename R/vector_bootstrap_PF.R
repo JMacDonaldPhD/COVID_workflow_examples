@@ -30,6 +30,9 @@ VBS_PF <- function(y, X_0, epiModel, obs = "AC"){
   particleFilter <- function(K, theta, alpha){
     #particles <- rep(list(array(X_0, dim = c(nrow(X_0),ncol(X_0), noDays + 1))), K)
     #particles <- array(dim = c(dim(X_t), K, noDays + 1))
+    
+    amend_K(K, epiModel)
+    
     particles <- array(dim = c(dim(X_t), noDays + 1, K))
     
     particles[,,1,] <- X_t

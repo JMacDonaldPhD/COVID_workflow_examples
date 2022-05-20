@@ -44,7 +44,7 @@ metaSIR <- function(N_M, endTime){
   if(sum(N_M <= 0) > 0){
     stop("Invalid population levels given (population must be > 0)")
   }
-
+  M <- length(N_M)
   # S -> I -> R
   stoch <- matrix(c(-1, 1, 0,
                     0, -1, 1), nrow = 2, ncol = 3, byrow = T)
