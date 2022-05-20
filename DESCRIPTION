@@ -15,7 +15,9 @@ RoxygenNote: 7.1.2
 Imports:
   mvnfast,
   mvtnorm,
-  TruncExpFam
+  TruncExpFam,
+  Matrix,
+  rlang
 Depends: 
     R (>= 2.10)
 LazyData: true
